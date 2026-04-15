@@ -1,0 +1,1594 @@
+{
+  "components": [
+    {
+      "components": [
+        {
+          "title": "SiD - Should be hidden on prod",
+          "key": "siD",
+          "type": "panel",
+          "label": "Panel",
+          "components": [
+            {
+              "label": "Sid Data",
+              "key": "sid",
+              "type": "container",
+              "input": true,
+              "components": [
+                {
+                  "label": "wallets",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "defaultValue": "[     {         \"address\": \"0x84b7f7309ddd2773f9912e2adc7a5e6a6898b1df\",         \"label\": \"test pending status\",         \"type\": \"EVM\"     },     {         \"address\": \"0xdc1e326294e6a37e3be60bbd6dc946dfe1f1b3d3\",         \"label\": \"Test after deploy\",         \"type\": \"EVM\"     },     {         \"address\": \"0x212c3a86388bfa749f04c86ceecbbd8621fdb9e4\",         \"label\": \"test syncing status kyc accreditation qualification\",         \"type\": \"EVM\"     },     {         \"address\": \"0xe7d74927561f699bc62d182d146115133450f913\",         \"label\": \"test US suitability required\",         \"type\": \"EVM\"     },     {         \"address\": \"0x1d0acd9f5a796851662cd6023e393a8e673dd437\",         \"label\": \"test FAIL US suitability required\",         \"type\": \"EVM\"     },     {         \"label\": \"Wallet 1 - Phantom\",         \"address\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",         \"type\": \"SVM\"     },     {         \"label\": \"Wallet 2 - SVMflare\",         \"address\": \"7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV1\",         \"type\": \"SVM\"     },     {         \"label\": \"Wallet 3 - Backpack\",         \"address\": \"3yFwqXBfZY4jBVUafQ1YEXALTs99TAmy7y8tFMRtKFe9\",         \"type\": \"SVM\"     },     {         \"label\": \"Wallet 4 - Glow\",         \"address\": \"DRpbCBMxVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy\",         \"type\": \"SVM\"     },     {         \"label\": \"Wallet 5 - Exodus\",         \"address\": \"5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1\",         \"type\": \"SVM\"     } ]",
+                  "key": "wallets",
+                  "type": "textfield",
+                  "input": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Internal information - Should be hidden on prod",
+          "key": "internalInformation",
+          "type": "panel",
+          "label": "Panel",
+          "components": [
+            {
+              "label": "Investment Type",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "defaultValue": "entity",
+              "key": "investorType",
+              "type": "textfield",
+              "applyMasakOn": "change",
+              "input": true
+            },
+            {
+              "label": "Blockchain Type",
+              "description": "EVM, SVM, OTHER",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "defaultValue": "SVM",
+              "key": "blockchainType",
+              "type": "textfield",
+              "applyMasakOn": "change",
+              "input": true
+            },
+            {
+              "label": "Wallet Address",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "calculateValue": "value = data.blockchainType === 'EVM' ? data.distributionsWalletAddressEVM : data.distributionsWalletAddressSOL;",
+              "key": "distributionsWalletAddress",
+              "type": "textfield",
+              "input": true
+            },
+            {
+              "label": "Wallet List",
+              "description": "Provide the list of wallets from where you are going to be funding",
+              "addAnotherPosition": "bottom",
+              "calculateValue": "const blockchain = data.blockchainType;\nconst sourceKey = `ArrayWalletList${blockchain}`;\nconst selectedList = data[sourceKey];\n\nvalue = (Array.isArray(selectedList) && selectedList.length)\n  ? selectedList.map(row => ({\n      wallet: row.wallet || ''\n    }))\n  : [{ wallet: '' }];",
+              "validate": {
+                "required": true,
+                "minLength": "1",
+                "maxLength": "5"
+              },
+              "key": "ArrayWalletList",
+              "type": "datagrid",
+              "input": true,
+              "components": [
+                {
+                  "label": "Funding wallet address",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "customMessage": "Please provide a valid wallet address for the selected blockchain type.",
+                    "custom": "valid = (data.blockchainType === 'EVM') ? /^0x[a-fA-F0-9]{40}$/.test(input) : (data.blockchainType === 'APTOS') ? /^0x[a-fA-F0-9]{1,64}$/.test(input) : true;"
+                  },
+                  "key": "wallet",
+                  "type": "textfield",
+                  "input": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Wallet Information",
+          "key": "walletInformation",
+          "type": "panel",
+          "label": "Panel",
+          "components": [
+            {
+              "label": "HTML",
+              "content": "<h4>Wallet Information</h4>\n\n<p>Only wallets that have been authorized may hold the tokens from this fund. After this wallet has been screened, the tokens will be issued to this wallet by default. Additional wallets can be added via the platform or Investor Support.</b></p>",
+              "key": "html1",
+              "type": "htmlelement"
+            },
+            {
+              "label": "Container",
+              "key": "container",
+              "type": "container",
+              "input": true,
+              "components": [
+                {
+                  "label": "Select {{data.blockchainType}} Wallet",
+                  "widget": "html5",
+                  "placeholder": "— choose a wallet —",
+                  "tableView": true,
+                  "dataSrc": "custom",
+                  "data": {
+                    "custom": "var wallets = JSON.parse(data.sid.wallets || '[]');\n// console.log(wallets);\nvalues = wallets.filter(function(w) { return w.type === data.blockchainType; }).map(function(w) {\n    var addr = w.address;\n  var short = addr.substring(0,6) + '...' + addr.substring(addr.length - 4);\n  return { label: w.label, value: w.address, shortAddress: short };\n});"
+                  },
+                  "valueProperty": "value",
+                  "template": "<span>\n  <strong>{{ item.label }}</strong> - {{item.shortAddress}}\n  </span>",
+                  "key": "selectedEvmWallet",
+                  "type": "select",
+                  "input": true
+                },
+                {
+                  "type": "textfield",
+                  "key": "displayAddress",
+                  "label": "Address",
+                  "disabled": true,
+                  "calculateValue": "var wallets = JSON.parse(data.walletListRaw || '[]'); var match = wallets.find(function(w) { return w.address === data.selectedEvmWallet; }); value = match ? match.address : '';",
+                  "customConditional": "show = !!data.selectedEvmWallet;",
+                  "tableView": true
+                },
+                {
+                  "type": "textfield",
+                  "key": "displayName",
+                  "label": "Name",
+                  "disabled": true,
+                  "calculateValue": "var wallets = JSON.parse(data.walletListRaw || '[]'); var match = wallets.find(function(w) { return w.address === data.selectedEvmWallet; }); value = match ? match.name : '';",
+                  "customConditional": "show = !!data.selectedEvmWallet;",
+                  "tableView": true
+                },
+                {
+                  "type": "textfield",
+                  "key": "displayType",
+                  "label": "Type",
+                  "disabled": true,
+                  "calculateValue": "var wallets = JSON.parse(data.walletListRaw || '[]'); var match = wallets.find(function(w) { return w.address === data.selectedEvmWallet; }); value = match ? match.type : '';",
+                  "customConditional": "show = !!data.selectedEvmWallet;",
+                  "tableView": true
+                }
+              ]
+            },
+            {
+              "label": "HTML",
+              "content": "Or add a new one:",
+              "key": "html2",
+              "type": "htmlelement"
+            },
+            {
+              "label": "Wallet Address EVM:",
+              "placeholder": "0x0000000000000000000000000000000000000000",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "validate": {
+                "required": true,
+                "customMessage": "Please provide a valid wallet address for the selected blockchain type.",
+                "custom": "valid = (data.blockchainType === 'EVM') ? /^0x[a-fA-F0-9]{40}$/.test(input) : (data.blockchainType === 'APTOS') ? /^0x[a-fA-F0-9]{1,64}$/.test(input) : true;"
+              },
+              "key": "distributionsWalletAddressEVM",
+              "conditional": {
+                "show": true,
+                "when": "blockchainType",
+                "eq": "EVM"
+              },
+              "type": "textfield",
+              "input": true
+            },
+            {
+              "label": "Wallet Address SVM:",
+              "placeholder": "0x0000000000000000000000000000000000000000",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "validate": {
+                "required": true,
+                "customMessage": "Please provide a valid wallet address for the selected blockchain type.",
+                "custom": "valid = (data.blockchainType === 'EVM') ? /^0x[a-fA-F0-9]{40}$/.test(input) : (data.blockchainType === 'APTOS') ? /^0x[a-fA-F0-9]{1,64}$/.test(input) : true;"
+              },
+              "key": "distributionsWalletAddressSOL",
+              "conditional": {
+                "show": true,
+                "when": "blockchainType",
+                "eq": "SVM"
+              },
+              "type": "textfield",
+              "input": true
+            }
+          ]
+        },
+        {
+          "title": "Payment Information",
+          "key": "paymentInformation",
+          "type": "panel",
+          "label": "Panel",
+          "components": [
+            {
+              "label": "Payment Method",
+              "optionsLabelPosition": "right",
+              "values": [
+                {
+                  "label": "USD",
+                  "value": "usd"
+                },
+                {
+                  "label": "USD1",
+                  "value": "usd1"
+                }
+              ],
+              "key": "paymentMethod",
+              "type": "radio",
+              "input": true
+            }
+          ]
+        },
+        {
+          "label": "Bank information",
+          "title": "Bank information",
+          "key": "bankInformation",
+          "conditional": {
+            "show": true,
+            "when": "paymentMethod",
+            "eq": "usd"
+          },
+          "type": "panel",
+          "components": [
+            {
+              "label": "Payment Preferences",
+              "key": "paymentPreferences",
+              "type": "container",
+              "input": true,
+              "components": [
+                {
+                  "label": "Bank name",
+                  "placeholder": "Sample Bank Name",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "bankName",
+                  "type": "textfield",
+                  "input": true,
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementBankName",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Country",
+                  "widget": "html5",
+                  "tableView": true,
+                  "defaultValue": "US",
+                  "data": {
+                    "values": [
+                      {
+                        "label": "United States",
+                        "value": "US"
+                      },
+                      {
+                        "label": "Afghanistan",
+                        "value": "AF"
+                      },
+                      {
+                        "label": "Ãland Islands",
+                        "value": "AX"
+                      },
+                      {
+                        "label": "Albania",
+                        "value": "AL"
+                      },
+                      {
+                        "label": "American Samoa",
+                        "value": "AS"
+                      },
+                      {
+                        "label": "Andorra",
+                        "value": "AD"
+                      },
+                      {
+                        "label": "Angola",
+                        "value": "AO"
+                      },
+                      {
+                        "label": "Anguilla",
+                        "value": "AI"
+                      },
+                      {
+                        "label": "Antarctica",
+                        "value": "AQ"
+                      },
+                      {
+                        "label": "Antigua and Barbuda",
+                        "value": "AG"
+                      },
+                      {
+                        "label": "Argentina",
+                        "value": "AR"
+                      },
+                      {
+                        "label": "Armenia",
+                        "value": "AM"
+                      },
+                      {
+                        "label": "Aruba",
+                        "value": "AW"
+                      },
+                      {
+                        "label": "Australia",
+                        "value": "AU"
+                      },
+                      {
+                        "label": "Austria",
+                        "value": "AT"
+                      },
+                      {
+                        "label": "Azerbaijan",
+                        "value": "AZ"
+                      },
+                      {
+                        "label": "Bahamas",
+                        "value": "BS"
+                      },
+                      {
+                        "label": "Bahrain",
+                        "value": "BH"
+                      },
+                      {
+                        "label": "Bangladesh",
+                        "value": "BD"
+                      },
+                      {
+                        "label": "Barbados",
+                        "value": "BB"
+                      },
+                      {
+                        "label": "Belgium",
+                        "value": "BE"
+                      },
+                      {
+                        "label": "Belize",
+                        "value": "BZ"
+                      },
+                      {
+                        "label": "Benin",
+                        "value": "BJ"
+                      },
+                      {
+                        "label": "Bermuda",
+                        "value": "BM"
+                      },
+                      {
+                        "label": "Bhutan",
+                        "value": "BT"
+                      },
+                      {
+                        "label": "Bolivia, Plurinational State of",
+                        "value": "BO"
+                      },
+                      {
+                        "label": "Bonaire, Sint Eustatius and Saba",
+                        "value": "BQ"
+                      },
+                      {
+                        "label": "Bosnia and Herzegovina",
+                        "value": "BA"
+                      },
+                      {
+                        "label": "Botswana",
+                        "value": "BW"
+                      },
+                      {
+                        "label": "Bouvet Island",
+                        "value": "BV"
+                      },
+                      {
+                        "label": "Brazil",
+                        "value": "BR"
+                      },
+                      {
+                        "label": "British Indian Ocean Territory",
+                        "value": "IO"
+                      },
+                      {
+                        "label": "Brunei Darussalam",
+                        "value": "BN"
+                      },
+                      {
+                        "label": "Bulgaria",
+                        "value": "BG"
+                      },
+                      {
+                        "label": "Burkina Faso",
+                        "value": "BF"
+                      },
+                      {
+                        "label": "Burundi",
+                        "value": "BI"
+                      },
+                      {
+                        "label": "Cambodia",
+                        "value": "KH"
+                      },
+                      {
+                        "label": "Cameroon",
+                        "value": "CM"
+                      },
+                      {
+                        "label": "Canada",
+                        "value": "CA"
+                      },
+                      {
+                        "label": "Cape Verde",
+                        "value": "CV"
+                      },
+                      {
+                        "label": "Cayman Islands",
+                        "value": "KY"
+                      },
+                      {
+                        "label": "Central African Republic",
+                        "value": "CF"
+                      },
+                      {
+                        "label": "Chad",
+                        "value": "TD"
+                      },
+                      {
+                        "label": "Chile",
+                        "value": "CL"
+                      },
+                      {
+                        "label": "China",
+                        "value": "CN"
+                      },
+                      {
+                        "label": "Christmas Island",
+                        "value": "CX"
+                      },
+                      {
+                        "label": "Cocos",
+                        "value": "Keeling Islands"
+                      },
+                      {
+                        "label": "Colombia",
+                        "value": "CO"
+                      },
+                      {
+                        "label": "Comoros",
+                        "value": "KM"
+                      },
+                      {
+                        "label": "Cook Islands",
+                        "value": "CK"
+                      },
+                      {
+                        "label": "Costa Rica",
+                        "value": "CR"
+                      },
+                      {
+                        "label": "Croatia",
+                        "value": "HR"
+                      },
+                      {
+                        "label": "Curaçao",
+                        "value": "CW"
+                      },
+                      {
+                        "label": "Cyprus",
+                        "value": "CY"
+                      },
+                      {
+                        "label": "Czech Republic",
+                        "value": "CZ"
+                      },
+                      {
+                        "label": "Denmark",
+                        "value": "DK"
+                      },
+                      {
+                        "label": "Djibouti",
+                        "value": "DJ"
+                      },
+                      {
+                        "label": "Dominica",
+                        "value": "DM"
+                      },
+                      {
+                        "label": "Dominican Republic",
+                        "value": "DO"
+                      },
+                      {
+                        "label": "Ecuador",
+                        "value": "EC"
+                      },
+                      {
+                        "label": "Egypt",
+                        "value": "EG"
+                      },
+                      {
+                        "label": "El Salvador",
+                        "value": "SV"
+                      },
+                      {
+                        "label": "Equatorial Guinea",
+                        "value": "GQ"
+                      },
+                      {
+                        "label": "Eritrea",
+                        "value": "ER"
+                      },
+                      {
+                        "label": "Estonia",
+                        "value": "EE"
+                      },
+                      {
+                        "label": "Ethiopia",
+                        "value": "ET"
+                      },
+                      {
+                        "label": "Falkland Islands",
+                        "value": "Malvinas"
+                      },
+                      {
+                        "label": "Faroe Islands",
+                        "value": "FO"
+                      },
+                      {
+                        "label": "Fiji",
+                        "value": "FJ"
+                      },
+                      {
+                        "label": "Finland",
+                        "value": "FI"
+                      },
+                      {
+                        "label": "France",
+                        "value": "FR"
+                      },
+                      {
+                        "label": "French Guiana",
+                        "value": "GF"
+                      },
+                      {
+                        "label": "French Polynesia",
+                        "value": "PF"
+                      },
+                      {
+                        "label": "French Southern Territories",
+                        "value": "TF"
+                      },
+                      {
+                        "label": "Gabon",
+                        "value": "GA"
+                      },
+                      {
+                        "label": "Gambia",
+                        "value": "GM"
+                      },
+                      {
+                        "label": "Georgia",
+                        "value": "GE"
+                      },
+                      {
+                        "label": "Germany",
+                        "value": "DE"
+                      },
+                      {
+                        "label": "Gibraltar",
+                        "value": "GI"
+                      },
+                      {
+                        "label": "Greece",
+                        "value": "GR"
+                      },
+                      {
+                        "label": "Greenland",
+                        "value": "GL"
+                      },
+                      {
+                        "label": "Grenada",
+                        "value": "GD"
+                      },
+                      {
+                        "label": "Guadeloupe",
+                        "value": "GP"
+                      },
+                      {
+                        "label": "Guam",
+                        "value": "GU"
+                      },
+                      {
+                        "label": "Guatemala",
+                        "value": "GT"
+                      },
+                      {
+                        "label": "Guernsey",
+                        "value": "GG"
+                      },
+                      {
+                        "label": "Guinea",
+                        "value": "GN"
+                      },
+                      {
+                        "label": "Guinea-Bissau",
+                        "value": "GW"
+                      },
+                      {
+                        "label": "Guyana",
+                        "value": "GY"
+                      },
+                      {
+                        "label": "Haiti",
+                        "value": "HT"
+                      },
+                      {
+                        "label": "Heard Island and McDonald Islands",
+                        "value": "HM"
+                      },
+                      {
+                        "label": "Holy See",
+                        "value": "Vatican City State"
+                      },
+                      {
+                        "label": "Honduras",
+                        "value": "HN"
+                      },
+                      {
+                        "label": "Hong Kong",
+                        "value": "HK"
+                      },
+                      {
+                        "label": "Hungary",
+                        "value": "HU"
+                      },
+                      {
+                        "label": "Iceland",
+                        "value": "IS"
+                      },
+                      {
+                        "label": "India",
+                        "value": "IN"
+                      },
+                      {
+                        "label": "Indonesia",
+                        "value": "ID"
+                      },
+                      {
+                        "label": "Iraq",
+                        "value": "IQ"
+                      },
+                      {
+                        "label": "Ireland",
+                        "value": "IE"
+                      },
+                      {
+                        "label": "Isle of Man",
+                        "value": "IM"
+                      },
+                      {
+                        "label": "Israel",
+                        "value": "IL"
+                      },
+                      {
+                        "label": "Italy",
+                        "value": "IT"
+                      },
+                      {
+                        "label": "Jamaica",
+                        "value": "JM"
+                      },
+                      {
+                        "label": "Japan",
+                        "value": "JP"
+                      },
+                      {
+                        "label": "Jersey",
+                        "value": "JE"
+                      },
+                      {
+                        "label": "Jordan",
+                        "value": "JO"
+                      },
+                      {
+                        "label": "Kazakhstan",
+                        "value": "KZ"
+                      },
+                      {
+                        "label": "Kenya",
+                        "value": "KE"
+                      },
+                      {
+                        "label": "Kiribati",
+                        "value": "KI"
+                      },
+                      {
+                        "label": "Korea, Republic of",
+                        "value": "KR"
+                      },
+                      {
+                        "label": "Kuwait",
+                        "value": "KW"
+                      },
+                      {
+                        "label": "Kyrgyzstan",
+                        "value": "KG"
+                      },
+                      {
+                        "label": "Lao People's Democratic Republic",
+                        "value": "LA"
+                      },
+                      {
+                        "label": "Latvia",
+                        "value": "LV"
+                      },
+                      {
+                        "label": "Lebanon",
+                        "value": "LB"
+                      },
+                      {
+                        "label": "Lesotho",
+                        "value": "LS"
+                      },
+                      {
+                        "label": "Liberia",
+                        "value": "LR"
+                      },
+                      {
+                        "label": "Libya",
+                        "value": "LY"
+                      },
+                      {
+                        "label": "Liechtenstein",
+                        "value": "LI"
+                      },
+                      {
+                        "label": "Lithuania",
+                        "value": "LT"
+                      },
+                      {
+                        "label": "Luxembourg",
+                        "value": "LU"
+                      },
+                      {
+                        "label": "Macao",
+                        "value": "MO"
+                      },
+                      {
+                        "label": "Macedonia, the Former Yugoslav Republic of",
+                        "value": "MK"
+                      },
+                      {
+                        "label": "Madagascar",
+                        "value": "MG"
+                      },
+                      {
+                        "label": "Malawi",
+                        "value": "MW"
+                      },
+                      {
+                        "label": "Malaysia",
+                        "value": "MY"
+                      },
+                      {
+                        "label": "Maldives",
+                        "value": "MV"
+                      },
+                      {
+                        "label": "Mali",
+                        "value": "ML"
+                      },
+                      {
+                        "label": "Malta",
+                        "value": "MT"
+                      },
+                      {
+                        "label": "Marshall Islands",
+                        "value": "MH"
+                      },
+                      {
+                        "label": "Martinique",
+                        "value": "MQ"
+                      },
+                      {
+                        "label": "Mauritania",
+                        "value": "MR"
+                      },
+                      {
+                        "label": "Mauritius",
+                        "value": "MU"
+                      },
+                      {
+                        "label": "Mayotte",
+                        "value": "YT"
+                      },
+                      {
+                        "label": "Mexico",
+                        "value": "MX"
+                      },
+                      {
+                        "label": "Micronesia, Federated States of",
+                        "value": "FM"
+                      },
+                      {
+                        "label": "Moldova, Republic of",
+                        "value": "MD"
+                      },
+                      {
+                        "label": "Monaco",
+                        "value": "MC"
+                      },
+                      {
+                        "label": "Mongolia",
+                        "value": "MN"
+                      },
+                      {
+                        "label": "Montenegro",
+                        "value": "ME"
+                      },
+                      {
+                        "label": "Montserrat",
+                        "value": "MS"
+                      },
+                      {
+                        "label": "Morocco",
+                        "value": "MA"
+                      },
+                      {
+                        "label": "Mozambique",
+                        "value": "MZ"
+                      },
+                      {
+                        "label": "Myanmar",
+                        "value": "MM"
+                      },
+                      {
+                        "label": "Nauru",
+                        "value": "NR"
+                      },
+                      {
+                        "label": "Nepal",
+                        "value": "NP"
+                      },
+                      {
+                        "label": "Netherlands",
+                        "value": "NL"
+                      },
+                      {
+                        "label": "New Caledonia",
+                        "value": "NC"
+                      },
+                      {
+                        "label": "New Zealand",
+                        "value": "NZ"
+                      },
+                      {
+                        "label": "Nicaragua",
+                        "value": "NI"
+                      },
+                      {
+                        "label": "Niger",
+                        "value": "NE"
+                      },
+                      {
+                        "label": "Nigeria",
+                        "value": "NG"
+                      },
+                      {
+                        "label": "Niue",
+                        "value": "NU"
+                      },
+                      {
+                        "label": "Norfolk Island",
+                        "value": "NF"
+                      },
+                      {
+                        "label": "Northern Mariana Islands",
+                        "value": "MP"
+                      },
+                      {
+                        "label": "Norway",
+                        "value": "NO"
+                      },
+                      {
+                        "label": "Oman",
+                        "value": "OM"
+                      },
+                      {
+                        "label": "Pakistan",
+                        "value": "PK"
+                      },
+                      {
+                        "label": "Palau",
+                        "value": "PW"
+                      },
+                      {
+                        "label": "Palestine, State of",
+                        "value": "PS"
+                      },
+                      {
+                        "label": "Panama",
+                        "value": "PA"
+                      },
+                      {
+                        "label": "Papua New Guinea",
+                        "value": "PG"
+                      },
+                      {
+                        "label": "Paraguay",
+                        "value": "PY"
+                      },
+                      {
+                        "label": "Peru",
+                        "value": "PE"
+                      },
+                      {
+                        "label": "Philippines",
+                        "value": "PH"
+                      },
+                      {
+                        "label": "Pitcairn",
+                        "value": "PN"
+                      },
+                      {
+                        "label": "Poland",
+                        "value": "PL"
+                      },
+                      {
+                        "label": "Portugal",
+                        "value": "PT"
+                      },
+                      {
+                        "label": "Puerto Rico",
+                        "value": "PR"
+                      },
+                      {
+                        "label": "Qatar",
+                        "value": "QA"
+                      },
+                      {
+                        "label": "Réunion",
+                        "value": "RE"
+                      },
+                      {
+                        "label": "Romania",
+                        "value": "RO"
+                      },
+                      {
+                        "label": "Rwanda",
+                        "value": "RW"
+                      },
+                      {
+                        "label": "Saint Barthélemy",
+                        "value": "BL"
+                      },
+                      {
+                        "label": "Saint Helena, Ascension and Tristan da Cunha",
+                        "value": "SH"
+                      },
+                      {
+                        "label": "Saint Kitts and Nevis",
+                        "value": "KN"
+                      },
+                      {
+                        "label": "Saint Lucia",
+                        "value": "LC"
+                      },
+                      {
+                        "label": "Saint Martin",
+                        "value": "French part"
+                      },
+                      {
+                        "label": "Saint Pierre and Miquelon",
+                        "value": "PM"
+                      },
+                      {
+                        "label": "Saint Vincent and the Grenadines",
+                        "value": "VC"
+                      },
+                      {
+                        "label": "Samoa",
+                        "value": "WS"
+                      },
+                      {
+                        "label": "San Marino",
+                        "value": "SM"
+                      },
+                      {
+                        "label": "Sao Tome and Principe",
+                        "value": "ST"
+                      },
+                      {
+                        "label": "Saudi Arabia",
+                        "value": "SA"
+                      },
+                      {
+                        "label": "Senegal",
+                        "value": "SN"
+                      },
+                      {
+                        "label": "Serbia",
+                        "value": "RS"
+                      },
+                      {
+                        "label": "Seychelles",
+                        "value": "SC"
+                      },
+                      {
+                        "label": "Sierra Leone",
+                        "value": "SL"
+                      },
+                      {
+                        "label": "Singapore",
+                        "value": "SG"
+                      },
+                      {
+                        "label": "Sint Maarten",
+                        "value": "Dutch part"
+                      },
+                      {
+                        "label": "Slovakia",
+                        "value": "SK"
+                      },
+                      {
+                        "label": "Slovenia",
+                        "value": "SI"
+                      },
+                      {
+                        "label": "Solomon Islands",
+                        "value": "SB"
+                      },
+                      {
+                        "label": "Somalia",
+                        "value": "SO"
+                      },
+                      {
+                        "label": "South Africa",
+                        "value": "ZA"
+                      },
+                      {
+                        "label": "South Georgia and the South Sandwich Islands",
+                        "value": "GS"
+                      },
+                      {
+                        "label": "Spain",
+                        "value": "ES"
+                      },
+                      {
+                        "label": "Sri Lanka",
+                        "value": "LK"
+                      },
+                      {
+                        "label": "Suriname",
+                        "value": "SR"
+                      },
+                      {
+                        "label": "Svalbard and Jan Mayen",
+                        "value": "SJ"
+                      },
+                      {
+                        "label": "Swaziland",
+                        "value": "SZ"
+                      },
+                      {
+                        "label": "Sweden",
+                        "value": "SE"
+                      },
+                      {
+                        "label": "Switzerland",
+                        "value": "CH"
+                      },
+                      {
+                        "label": "Syrian Arab Republic",
+                        "value": "SY"
+                      },
+                      {
+                        "label": "Taiwan, Province of China",
+                        "value": "TW"
+                      },
+                      {
+                        "label": "Tajikistan",
+                        "value": "TJ"
+                      },
+                      {
+                        "label": "Tanzania, United Republic of",
+                        "value": "TZ"
+                      },
+                      {
+                        "label": "Thailand",
+                        "value": "TH"
+                      },
+                      {
+                        "label": "Timor-Leste",
+                        "value": "TL"
+                      },
+                      {
+                        "label": "Togo",
+                        "value": "TG"
+                      },
+                      {
+                        "label": "Tokelau",
+                        "value": "TK"
+                      },
+                      {
+                        "label": "Tonga",
+                        "value": "TO"
+                      },
+                      {
+                        "label": "Trinidad and Tobago",
+                        "value": "TT"
+                      },
+                      {
+                        "label": "Tunisia",
+                        "value": "TN"
+                      },
+                      {
+                        "label": "Turkey",
+                        "value": "TR"
+                      },
+                      {
+                        "label": "Turkmenistan",
+                        "value": "TM"
+                      },
+                      {
+                        "label": "Turks and Caicos Islands",
+                        "value": "TC"
+                      },
+                      {
+                        "label": "Tuvalu",
+                        "value": "TV"
+                      },
+                      {
+                        "label": "Uganda",
+                        "value": "UG"
+                      },
+                      {
+                        "label": "United Arab Emirates",
+                        "value": "AE"
+                      },
+                      {
+                        "label": "United Kingdom",
+                        "value": "GB"
+                      },
+                      {
+                        "label": "United States Minor Outlying Islands",
+                        "value": "UM"
+                      },
+                      {
+                        "label": "Uruguay",
+                        "value": "UY"
+                      },
+                      {
+                        "label": "Uzbekistan",
+                        "value": "UZ"
+                      },
+                      {
+                        "label": "Vanuatu",
+                        "value": "VU"
+                      },
+                      {
+                        "label": "Viet Nam",
+                        "value": "VN"
+                      },
+                      {
+                        "label": "Virgin Islands, British",
+                        "value": "VG"
+                      },
+                      {
+                        "label": "Virgin Islands, U.S.",
+                        "value": "VI"
+                      },
+                      {
+                        "label": "Wallis and Futuna",
+                        "value": "WF"
+                      },
+                      {
+                        "label": "Western Sahara",
+                        "value": "EH"
+                      },
+                      {
+                        "label": "Yemen",
+                        "value": "YE"
+                      },
+                      {
+                        "label": "Zambia",
+                        "value": "ZM"
+                      },
+                      {
+                        "label": "Zimbabwe",
+                        "value": "ZW"
+                      }
+                    ]
+                  },
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "country",
+                  "type": "select",
+                  "input": true,
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementCountry",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Bank Address",
+                  "placeholder": "500 Madison Avenue, NYC, NY 10011",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "branchAddress",
+                  "type": "textfield",
+                  "input": true,
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementBranchAddress",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "SWIFT Code",
+                  "placeholder": "DEGRESBBXXX",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "swift",
+                  "conditional": {
+                    "when": "country",
+                    "eq": "US"
+                  },
+                  "type": "textfield",
+                  "input": true,
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementSwiftCode",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Routing Number",
+                  "placeholder": "011103093",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "branchId",
+                  "type": "textfield",
+                  "customConditional": "show = (data.paymentPreferences && data.paymentPreferences.country) ? [\"US\", \"PR\",\"GU\",\"MP\",\"VI\",\"AS\",\"UM\"].includes(data.paymentPreferences.country) : false",
+                  "input": true,
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementRoutingNumber",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Account Holder",
+                  "placeholder": "Sample Company LLC",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "accountHolderName",
+                  "type": "textfield",
+                  "input": true,
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementAccountHolder",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "Bank Account Number",
+                  "placeholder": "13719713158835300",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "required": true
+                  },
+                  "key": "accountNum",
+                  "customConditional": "show = (data.paymentPreferences && data.paymentPreferences.country) ? (![\"AL\",\"AD\",\"AT\",\"AZ\",\"BH\",\"BY\",\"BE\",\"BA\",\"BG\",\"CR\",\"HR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"EE\",\"FO\",\"FI\",\"FR\",\"GE\",\"DE\",\"GI\",\"GR\",\"GL\",\"VA\",\"HU\",\"IS\",\"IQ\",\"IE\",\"IL\",\"IT\",\"JO\",\"KZ\",\"KW\",\"LV\",\"LB\",\"LI\",\"LT\",\"LU\",\"MT\",\"MR\",\"MU\",\"MD\",\"MC\",\"ME\",\"NL\",\"MK\",\"NO\",\"PS\",\"PL\",\"PT\",\"QA\",\"RO\",\"SM\",\"SA\",\"RS\",\"SC\",\"SK\",\"SI\",\"ES\",\"SE\",\"CH\",\"TN\",\"TR\",\"UA\",\"AE\"].includes(data.paymentPreferences.country)) : false",
+                  "type": "textfield",
+                  "input": true,
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementAccountNumber",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "label": "IBAN",
+                  "placeholder": "IE12BOFI90000112345678",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "case": "uppercase",
+                  "validate": {
+                    "required": true,
+                    "custom": "let v = (data.paymentPreferences && data.paymentPreferences.ibanRaw) ? data.paymentPreferences.ibanRaw : '';\nv = v.replace(/[^A-Za-z0-9]/g, \"\");\nlet match = v.match(/^[A-Z]{2}[0-9]{2}[A-Za-z0-9]{11,30}$/)\nif (v.length==0) {\n valid = \"\"\n} else if (v.length < 15) {\n valid = \"The IBAN should be at least 15 characters.\"\n} else if (v.length > 34) {\n valid = \"The IBAN should be at most 34 characters.\"\n} else if (!match) {\n valid = \"Please check your IBAN. It should start with a 2 letter country code and 2 numbers. Examples: IE12, CY 43, LU 28\"\n} else {\n valid = true\n}"
+                  },
+                  "key": "ibanRaw",
+                  "customConditional": "show = (data.paymentPreferences && data.paymentPreferences.country) ? ([\"AL\",\"AD\",\"AT\",\"AZ\",\"BH\",\"BY\",\"BE\",\"BA\",\"BG\",\"CR\",\"HR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"EE\",\"FO\",\"FI\",\"FR\",\"GE\",\"DE\",\"GI\",\"GR\",\"GL\",\"VA\",\"HU\",\"IS\",\"IQ\",\"IE\",\"IL\",\"IT\",\"JO\",\"KZ\",\"KW\",\"LV\",\"LB\",\"LI\",\"LT\",\"LU\",\"MT\",\"MR\",\"MU\",\"MD\",\"MC\",\"ME\",\"NL\",\"MK\",\"NO\",\"PS\",\"PL\",\"PT\",\"QA\",\"RO\",\"SM\",\"SA\",\"RS\",\"SC\",\"SK\",\"SI\",\"ES\",\"SE\",\"CH\",\"TN\",\"TR\",\"UA\",\"AE\"].includes(data.paymentPreferences.country) && data.agreementState !== \"submitted\") : false",
+                  "type": "textfield",
+                  "input": true
+                },
+                {
+                  "label": "IBAN",
+                  "applyMaskOn": "change",
+                  "hidden": true,
+                  "tableView": true,
+                  "redrawOn": "paymentPreferences.ibanRaw",
+                  "calculateValue": "value = (data.paymentPreferences && data.paymentPreferences.ibanRaw) ? data.paymentPreferences.ibanRaw.replace(/[^a-zA-Z0-9]/g, '') : ''",
+                  "key": "iban",
+                  "customConditional": "show = (data.paymentPreferences && data.paymentPreferences.country) ? ([\"AL\",\"AD\",\"AT\",\"AZ\",\"BH\",\"BY\",\"BE\",\"BA\",\"BG\",\"CR\",\"HR\",\"CY\",\"CZ\",\"DK\",\"DO\",\"EE\",\"FO\",\"FI\",\"FR\",\"GE\",\"DE\",\"GI\",\"GR\",\"GL\",\"VA\",\"HU\",\"IS\",\"IQ\",\"IE\",\"IL\",\"IT\",\"JO\",\"KZ\",\"KW\",\"LV\",\"LB\",\"LI\",\"LT\",\"LU\",\"MT\",\"MR\",\"MU\",\"MD\",\"MC\",\"ME\",\"NL\",\"MK\",\"NO\",\"PS\",\"PL\",\"PT\",\"QA\",\"RO\",\"SM\",\"SA\",\"RS\",\"SC\",\"SK\",\"SI\",\"ES\",\"SE\",\"CH\",\"TN\",\"TR\",\"UA\",\"AE\"].includes(data.paymentPreferences.country) && data.agreementState === \"submitted\") : false",
+                  "logic": [
+                    {
+                      "name": "disableOnAgreementIBAN",
+                      "trigger": {
+                        "type": "simple",
+                        "simple": {
+                          "show": true,
+                          "when": "fundingInstructionsStatus",
+                          "eq": "submitted"
+                        }
+                      },
+                      "actions": [
+                        {
+                          "name": "disableInput",
+                          "type": "property",
+                          "property": {
+                            "label": "Disabled",
+                            "value": "disabled",
+                            "type": "boolean"
+                          },
+                          "state": true
+                        }
+                      ]
+                    }
+                  ],
+                  "type": "textfield",
+                  "input": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "List of wallets",
+          "key": "listOfWallets",
+          "conditional": {
+            "show": true,
+            "when": "paymentMethod",
+            "eq": "usd1"
+          },
+          "type": "panel",
+          "label": "Panel",
+          "components": [
+            {
+              "label": "Wallet List EVM",
+              "description": "Provide the list of wallets from where you are going to be funding",
+              "addAnotherPosition": "bottom",
+              "validate": {
+                "required": true,
+                "minLength": "1",
+                "maxLength": "5"
+              },
+              "key": "ArrayWalletListEVM",
+              "conditional": {
+                "show": true,
+                "when": "blockchainType",
+                "eq": "EVM"
+              },
+              "type": "datagrid",
+              "input": true,
+              "components": [
+                {
+                  "label": "Funding wallet address",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "customMessage": "Please provide a valid wallet address for the selected blockchain type.",
+                    "custom": "valid = (data.blockchainType === 'EVM') ? /^0x[a-fA-F0-9]{40}$/.test(input) : (data.blockchainType === 'APTOS') ? /^0x[a-fA-F0-9]{1,64}$/.test(input) : true;"
+                  },
+                  "key": "wallet",
+                  "type": "textfield",
+                  "input": true
+                }
+              ]
+            },
+            {
+              "label": "Wallet List SOL",
+              "description": "Provide the list of wallets from where you are going to be funding",
+              "addAnotherPosition": "bottom",
+              "validate": {
+                "required": true,
+                "minLength": "1",
+                "maxLength": "5"
+              },
+              "key": "ArrayWalletListSOL",
+              "conditional": {
+                "show": true,
+                "when": "blockchainType",
+                "eq": "SVM"
+              },
+              "type": "datagrid",
+              "input": true,
+              "components": [
+                {
+                  "label": "Funding wallet address",
+                  "applyMaskOn": "change",
+                  "tableView": true,
+                  "validate": {
+                    "customMessage": "Please provide a valid wallet address for the selected blockchain type.",
+                    "custom": "valid = (data.blockchainType === 'EVM') ? /^0x[a-fA-F0-9]{40}$/.test(input) : (data.blockchainType === 'APTOS') ? /^0x[a-fA-F0-9]{1,64}$/.test(input) : true;"
+                  },
+                  "key": "wallet",
+                  "type": "textfield",
+                  "input": true
+                }
+              ]
+            },
+            {
+              "label": "HTML",
+              "content": "&nbsp;\n<style>\n  .formio-button-remove-row {\n  background-color: #0283a8 !important;\n  border: 1px solid #000000;\n  color: #ffffff;\n  padding: 6px 14px;\n  border-radius: 6px;\n  display: inline-flex;\n  align-items: center; \n  justify-content: center;\n  }\n  .fa-times-circle-o  {\n  color:#FFF;\n  }\n  .fa-times-circle-o:before{\n  color:#FFF;\n  }\n  .fa-plus:before{\n  color:#FFF;\n  }</style>",
+              "key": "html",
+              "type": "htmlelement"
+            }
+          ]
+        }
+      ],
+      "input": true
+    }
+  ]
+}
