@@ -1,53 +1,69 @@
-# Form.io Builder Playground
+# Form Builder Studio
 
-A lightweight Form.io builder playground that includes:
+Material UI redesign for a Form.io builder workspace.
 
-- Drag-and-drop form builder
-- Live form preview
+It includes:
+
+- Drag-and-drop Form.io builder
+- Live preview of the generated form
 - Live submission data JSON
-- Components JSON viewer (expand/collapse, colored)
-- Copy-to-clipboard for components JSON
-- Auto-save form schema to `localStorage`
+- Cleaned components JSON in a collapsible tree
+- Copy-to-clipboard for the exported components payload
+- Autosave to `localStorage`
 
 ## Requirements
 
-- A modern browser (Chrome, Edge, Firefox, Safari)
-- Python 3 (for a quick local static server)
+- Node.js 20+ recommended
+- npm
 
-## Run locally
-
-From the project folder:
+## Install
 
 ```bash
 cd /Users/ariellipschutz/Proyectos/securitize/formio
-python3 -m http.server 8080
+npm install
+```
+
+## Run in development
+
+```bash
+npm run dev
 ```
 
 Open:
 
-- [http://localhost:8080](http://localhost:8080)
+- [http://localhost:5173](http://localhost:5173)
 
-## How it works
+## Build for production
 
-- The builder (left panel) updates the live preview (right panel).
-- Every component change is saved to browser `localStorage` under:
-  - `formio.builder.schema.v1`
-- The generated JSON panel shows a sanitized payload:
-  - Shape: `{ "components": [...] }`
-  - Removes noisy keys like `display`, `settings`, and `id`
-  - Compacts empty values for a cleaner output
+```bash
+npm run build
+```
 
-## Reset saved form
+To preview the production build locally:
 
-If you want a fresh start, clear the saved key in browser DevTools:
+```bash
+npm run preview
+```
 
-1. Open DevTools
-2. Go to Application/Storage > Local Storage
-3. Remove `formio.builder.schema.v1`
-4. Refresh the page
+## Exported JSON behavior
 
-## Project files
+The schema export is sanitized before rendering and copying:
 
-- `index.html` - page structure and CDN imports
-- `styles.css` - layout and custom styles
-- `app.js` - Form.io builder/preview logic, persistence, JSON rendering
+- Output shape is `{ "components": [...] }`
+- Removes `display`, `settings`, and `id`
+- Removes empty values like `null`, `""`, `false`, empty arrays, and empty objects
+
+## Persistence
+
+The builder schema is saved automatically in browser `localStorage` under:
+
+- `formio.builder.schema.v1`
+
+To reset it, remove that key from DevTools and refresh the page.
+
+## Main files
+
+- `src/App.jsx` - main app layout and Form.io integration
+- `src/main.jsx` - Material UI theme and app bootstrap
+- `src/formio-overrides.css` - Form.io visual overrides inside the MUI shell
+- `index.html` - app entry HTML
