@@ -19,6 +19,8 @@ export function extractPanels(schema) {
         const panelCopy = JSON.parse(JSON.stringify(component));
         panels.push({
           id: component.key || `${component.type}_${Date.now()}_${Math.random()}`,
+          key: component.key,
+          title: component.title || "Untitled",
           label: component.label || component.title || `${component.type} ${index + 1}`,
           type: component.type,
           data: panelCopy,

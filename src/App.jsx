@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { Formio } from "formiojs";
 
 import SurfaceCard from "./components/SurfaceCard";
 import JsonTree from "./components/JsonTree";
-import SavedPanelsPanel from "./components/SavedPanelsPanel";
 import BuilderSection from "./components/BuilderSection";
 import SchemaSection from "./components/SchemaSection";
 import DataSection from "./components/DataSection";
@@ -13,41 +12,95 @@ import {
   STORAGE_KEY_SCHEMA,
   STORAGE_KEY_PANELS,
   fallbackSchema,
-  extractPanels,
-  loadSchema,
-  getComponentsPayload
+  extractPanels
 } from "./utils/panelUtils";
 
 
 export default function App() {
+  // ============================================
+  // REFS
+  // ============================================
   const builderMountRef = useRef(null);
   const previewMountRef = useRef(null);
   const builderInstanceRef = useRef(null);
   const previewInstanceRef = useRef(null);
+  const componentToAddRef = useRef(null);
 
-  const [schema, setSchema] = useState(() => loadSchema());
-  const [submissionData, setSubmissionData] = useState({});
-  const [copyStatus, setCopyStatus] = useState("");
-  const [savedPanels, setSavedPanels] = useState(() => {
-    const stored = localStorage.getItem(STORAGE_KEY_PANELS);
-    return stored ? JSON.parse(stored) : [];
+  // ============================================
+  // STATE
+  // ============================================
+  const [schema, setSchema] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_SCHEMA);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return { display: 'form', components: [] };
+      }
+    }
+    return { display: 'form', components: [] };
   });
 
-  const componentsPayload = getComponentsPayload(schema);
+  const [submissionData, setSubmissionData] = useState({});
+  const [copyStatus, setCopyStatus] = useState("");
 
-  // Montar el builder de Formio
+  const [savedPanels, setSavedPanels] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_PANELS);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  // ============================================
+  // DERIVED VALUES
+  // ============================================
+  const componentsPayload = { components: schema?.components || [] };
+
+  // ============================================
+  // EFFECTS
+  // ============================================
+
+  // Mount Formio builder with Saved Panels section
   useEffect(() => {
     let active = true;
 
     async function mountBuilder() {
-      if (!builderMountRef.current) {
-        return;
-      }
+      if (!builderMountRef.current) return;
 
       builderMountRef.current.innerHTML = "";
-      const builder = await Formio.builder(builderMountRef.current, loadSchema(), {
-        noDefaultSubmitButton: true
+
+      // Build pre-defined components from saved panels
+      const preDefinedComponents = {};
+      savedPanels.forEach((panel) => {
+        preDefinedComponents[panel.key] = {
+          title: panel.title || panel.label || panel.type,
+          key: panel.key,
+          icon: 'bookmark',
+          schema: panel.data || {}
+        };
       });
+
+      // Configure builder
+      const builderConfig = {
+        noDefaultSubmitButton: true
+      };
+
+      if (Object.keys(preDefinedComponents).length > 0) {
+        builderConfig.builder = {
+          premium: {
+            title: 'Saved Panels',
+            weight: 5,
+            components: preDefinedComponents
+          }
+        };
+      }
+
+      const builder = await Formio.builder(builderMountRef.current, schema || {}, builderConfig);
 
       if (!active) {
         if (typeof builder.destroy === "function") {
@@ -58,8 +111,13 @@ export default function App() {
 
       builderInstanceRef.current = builder;
 
+      // Sync builder changes to React state
       const syncSchema = () => {
-        setSchema(builder.schema || fallbackSchema);
+        const newSchema = builder.schema || {
+          display: 'form',
+          components: []
+        };
+        setSchema(newSchema);
         setCopyStatus("");
       };
 
@@ -69,38 +127,6 @@ export default function App() {
       builder.on("updateComponent", syncSchema);
 
       syncSchema();
-
-      // Inyectar Saved Panels dentro del DOM de Formio
-      const injectSavedPanelsInFormio = () => {
-        const formComponentsContainer = builderMountRef.current?.querySelector(".formcomponents");
-        
-        if (formComponentsContainer && !formComponentsContainer.querySelector("#saved-panels-container")) {
-          const savedPanelsContainer = document.createElement("div");
-          savedPanelsContainer.id = "saved-panels-container";
-          savedPanelsContainer.className = "col-xs-4 col-sm-3 col-md-2";
-          savedPanelsContainer.style.padding = "12px";
-          savedPanelsContainer.style.borderTop = "1px solid #ddd";
-          savedPanelsContainer.style.marginTop = "12px";
-          
-          const title = document.createElement("div");
-          title.style.fontWeight = "700";
-          title.style.fontSize = "0.85rem";
-          title.style.marginBottom = "8px";
-          title.textContent = "📋 Saved Panels";
-          
-          const panelsList = document.createElement("div");
-          panelsList.id = "panels-list";
-          
-          savedPanelsContainer.appendChild(title);
-          savedPanelsContainer.appendChild(panelsList);
-          formComponentsContainer.appendChild(savedPanelsContainer);
-        }
-      };
-
-      // Inyectar solo una vez cuando Formio esté listo
-      setTimeout(() => {
-        injectSavedPanelsInFormio();
-      }, 500);
     }
 
     mountBuilder();
@@ -114,70 +140,24 @@ export default function App() {
     };
   }, []);
 
-  // Guardar schema y actualizar paneles
+  // Save schema and extracted panels to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_SCHEMA, JSON.stringify(schema));
-    
+
     const panels = extractPanels(schema);
-    setSavedPanels(panels);
-    localStorage.setItem(STORAGE_KEY_PANELS, JSON.stringify(panels));
-    
-    // Actualizar la lista de paneles en el DOM de Formio si existe
-    const listContainer = document.querySelector("#panels-list");
-    if (listContainer) {
-      listContainer.innerHTML = "";
-      if (panels.length === 0) {
-        const empty = document.createElement("div");
-        empty.style.padding = "8px";
-        empty.style.color = "#999";
-        empty.style.fontSize = "11px";
-        empty.style.textAlign = "center";
-        empty.textContent = "No saved panels yet.";
-        listContainer.appendChild(empty);
-      } else {
-        panels.forEach((panel) => {
-          const panelItem = document.createElement("div");
-          panelItem.draggable = true;
-          panelItem.style.padding = "8px";
-          panelItem.style.background = "#f5f8ff";
-          panelItem.style.border = "1px solid rgba(97, 118, 168, 0.2)";
-          panelItem.style.cursor = "grab";
-          panelItem.style.userSelect = "none";
-          panelItem.style.borderRadius = "4px";
-          
-          panelItem.addEventListener("dragstart", (e) => {
-            e.dataTransfer.effectAllowed = "copy";
-            e.dataTransfer.setData("application/json", JSON.stringify(panel.data));
-          });
-          
-          const label = document.createElement("div");
-          label.style.fontWeight = "600";
-          label.style.fontSize = "11px";
-          label.style.marginBottom = "4px";
-          label.textContent = panel.label;
-          
-          const type = document.createElement("div");
-          type.style.fontSize = "10px";
-          type.style.color = "#666";
-          type.textContent = `Type: ${panel.type}`;
-          
-          panelItem.appendChild(label);
-          panelItem.appendChild(type);
-          listContainer.appendChild(panelItem);
-        });
-      }
+    if (panels.length > 0) {
+      localStorage.setItem(STORAGE_KEY_PANELS, JSON.stringify(panels));
+      setSavedPanels(panels);
     }
   }, [schema]);
 
-  // Renderizar preview
+  // Mount and update preview form
   useEffect(() => {
     let active = true;
     let pollInterval;
 
     async function renderPreview() {
-      if (!previewMountRef.current) {
-        return;
-      }
+      if (!previewMountRef.current) return;
 
       if (previewInstanceRef.current && typeof previewInstanceRef.current.destroy === "function") {
         previewInstanceRef.current.destroy(true);
@@ -194,32 +174,26 @@ export default function App() {
       }
 
       previewInstanceRef.current = form;
-      
-      // Extraer datos del formulario haciendo una copia limpia
+
       const extractFormData = () => {
         if (form.data && typeof form.data === 'object') {
           return JSON.parse(JSON.stringify(form.data));
         }
         return {};
       };
-      
-      // Crear un contenedor para rastrear datos anteriores
+
       let lastExtractedData = JSON.stringify({});
-      
-      // Función de actualización que fuerza a React a detectar cambios
+
       const updateSubmissionData = () => {
         const newData = extractFormData();
         const newDataStr = JSON.stringify(newData);
-        
-        // Solo actualizar si realmente cambió
+
         if (newDataStr !== lastExtractedData) {
           lastExtractedData = newDataStr;
-          // Forzar actualización con un nuevo objeto
-          setSubmissionData({...newData});
+          setSubmissionData({ ...newData });
         }
       };
-      
-      // Polling más frecuente y directo
+
       pollInterval = setInterval(() => {
         if (!active) {
           clearInterval(pollInterval);
@@ -242,6 +216,9 @@ export default function App() {
     };
   }, [schema]);
 
+  // ============================================
+  // HANDLERS
+  // ============================================
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(JSON.stringify(componentsPayload, null, 2));
@@ -251,6 +228,9 @@ export default function App() {
     }
   }
 
+  // ============================================
+  // RENDER
+  // ============================================
   return (
     <Box
       sx={{
@@ -270,7 +250,6 @@ export default function App() {
             minHeight: "100vh"
           }}
         >
-          {/* MAIN CONTENT */}
           <Box
             sx={{
               display: "flex",
