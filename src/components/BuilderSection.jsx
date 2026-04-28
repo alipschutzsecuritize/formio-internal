@@ -17,7 +17,9 @@ function BuilderSection({ builderMountRef, previewMountRef }) {
         title="Build the form"
         subtitle="Drag components, configure fields, and keep iterating."
         minHeight={{ xs: 520, xl: "calc(100vh - 240px)" }}
+        height={{ xs: 520, xl: "calc(100vh - 240px)" }}
         scrollable
+        bodySx={{ overflow: "hidden" }}
       >
         <Box ref={builderMountRef} className="formio-surface builder-theme" />
       </SurfaceCard>
@@ -27,6 +29,7 @@ function BuilderSection({ builderMountRef, previewMountRef }) {
         title="Final result"
         subtitle="The running form updates every time the schema changes."
         minHeight={{ xs: 520, xl: "calc(100vh - 240px)" }}
+        height={{ xs: 520, xl: "calc(100vh - 240px)" }}
         scrollable
       >
         <Box ref={previewMountRef} className="formio-surface preview-theme" />

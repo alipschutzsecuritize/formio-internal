@@ -8,6 +8,7 @@ const fallbackSchema = {
 
 export function extractPanels(schema) {
   const panels = [];
+  let panelCount = 0;
   
   function traverse(components, parentPath = []) {
     if (!Array.isArray(components)) return;
@@ -16,12 +17,46 @@ export function extractPanels(schema) {
       const currentPath = [...parentPath, index];
       
       if (component.type === "panel" || component.type === "fieldset" || component.type === "columns") {
+        panelCount++;
         const panelCopy = JSON.parse(JSON.stringify(component));
+        
+        // Generate a consistent key using component properties
+        // Priority: component.key > component.id > generated from path + type + title
+        let panelKey = component.key;
+        if (!panelKey && component.id) {
+          panelKey = component.id;
+        }
+        if (!panelKey) {
+          // Generate from title/label if available (more consistent than random)
+          const label = component.title || component.label;
+          if (label) {
+            panelKey = `${component.type}_${label.toLowerCase().replace(/\s+/g, '_')}`;
+          } else {
+            // Fallback: use path (will be consistent as long as structure doesn't change)
+            panelKey = `${component.type}_${currentPath.join('_')}`;
+          }
+        }
+        
+        // Try to get a meaningful title/label from various properties
+        let displayTitle = 
+          component.title || 
+          component.label || 
+          component.display ||
+          component.key || 
+          component.placeholder ||
+          (component.properties && component.properties.displayTitle) ||
+          (component.properties && component.properties.legend);
+        
+        // If still no title or it's generic, use counter
+        if (!displayTitle || displayTitle === "Untitled" || displayTitle.trim() === "" || displayTitle === "Panel" || displayTitle === "Fieldset" || displayTitle === "Columns") {
+          displayTitle = `${component.type.charAt(0).toUpperCase() + component.type.slice(1)} ${panelCount}`;
+        }
+        
         panels.push({
-          id: component.key || `${component.type}_${Date.now()}_${Math.random()}`,
-          key: component.key,
-          title: component.title || "Untitled",
-          label: component.label || component.title || `${component.type} ${index + 1}`,
+          id: panelKey,
+          key: panelKey,
+          title: displayTitle,
+          label: displayTitle,
           type: component.type,
           data: panelCopy,
           lastUpdated: Date.now()

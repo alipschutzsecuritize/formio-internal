@@ -1,6 +1,7 @@
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
-function SavedPanelsPanel({ panels }) {
+function SavedPanelsPanel({ panels, onDeletePanel }) {
   if (panels.length === 0) {
     return (
       <Box sx={{ p: 1, color: "text.secondary", fontSize: 11, textAlign: "center" }}>
@@ -28,6 +29,9 @@ function SavedPanelsPanel({ panels }) {
             cursor: "grab",
             userSelect: "none",
             transition: "all 140ms ease",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
             "&:hover": {
               background: "#eff3ff",
               borderColor: "rgba(79, 111, 255, 0.4)",
@@ -39,12 +43,32 @@ function SavedPanelsPanel({ panels }) {
             }
           }}
         >
-          <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.25 }}>
-            {panel.label}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
-            {panel.type}
-          </Typography>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.25 }}>
+              {panel.label}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+              {panel.type}
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeletePanel(panel.id);
+            }}
+            sx={{
+              ml: 0.5,
+              flex: 'none',
+              color: "text.secondary",
+              "&:hover": {
+                color: "error.main",
+                background: "rgba(244, 67, 54, 0.08)"
+              }
+            }}
+          >
+            <CloseIcon sx={{ fontSize: 16 }} />
+          </IconButton>
         </Paper>
       ))}
     </Box>

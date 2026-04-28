@@ -140,14 +140,38 @@ export default function App() {
     };
   }, []);
 
-  // Save schema and extracted panels to localStorage
+  // Save schema to localStorage and auto-extract panels
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY_SCHEMA, JSON.stringify(schema));
 
-    const panels = extractPanels(schema);
-    if (panels.length > 0) {
-      localStorage.setItem(STORAGE_KEY_PANELS, JSON.stringify(panels));
-      setSavedPanels(panels);
+    // Auto-extract panels from schema as they're created
+    const extractedPanels = extractPanels(schema);
+    
+    if (extractedPanels.length > 0) {
+      // Merge with existing panels - UPDATE existing ones if content changed
+      const updatedPanels = savedPanels.map(existingPanel => {
+        // Find if this panel exists in the extracted ones
+        const extractedVersion = extractedPanels.find(ep => ep.key === existingPanel.key);
+        if (extractedVersion) {
+          // Update the panel data with current version from schema
+          return {
+            ...existingPanel,
+            data: extractedVersion.data,
+            label: extractedVersion.label,
+            title: extractedVersion.title,
+            lastUpdated: Date.now()
+          };
+        }
+        return existingPanel;
+      });
+
+      // Add new panels that don't exist yet
+      const existingKeys = new Set(updatedPanels.map(p => p.key));
+      const newPanels = extractedPanels.filter(ep => !existingKeys.has(ep.key));
+
+      const merged = [...updatedPanels, ...newPanels];
+      setSavedPanels(merged);
+      localStorage.setItem(STORAGE_KEY_PANELS, JSON.stringify(merged));
     }
   }, [schema]);
 
@@ -228,6 +252,8 @@ export default function App() {
     }
   }
 
+
+
   // ============================================
   // RENDER
   // ============================================
@@ -241,7 +267,7 @@ export default function App() {
           "radial-gradient(circle at top left, rgba(80, 102, 255, 0.14), transparent 28%), radial-gradient(circle at right top, rgba(0, 209, 178, 0.16), transparent 30%), linear-gradient(180deg, #f5f8ff 0%, #f3f6fb 52%, #eef4ef 100%)"
       }}
     >
-      <Box sx={{ maxWidth: 1800, mx: "auto" }}>
+      <Box sx={{ width: "100%", mx: "auto" }}>
         <Box
           sx={{
             display: "grid",
@@ -276,6 +302,8 @@ export default function App() {
                 copyStatus={copyStatus}
               />
             </Box>
+
+
           </Box>
         </Box>
       </Box>

@@ -1,6 +1,16 @@
 import { Box, Divider, Paper, Typography, alpha } from "@mui/material";
 
-function SurfaceCard({ icon, title, subtitle, children, rightAction, minHeight, scrollable = false }) {
+function SurfaceCard({
+  icon,
+  title,
+  subtitle,
+  children,
+  rightAction,
+  minHeight,
+  height,
+  scrollable = false,
+  bodySx
+}) {
   return (
     <Paper
       elevation={0}
@@ -13,6 +23,7 @@ function SurfaceCard({ icon, title, subtitle, children, rightAction, minHeight, 
         background:
           "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(247,250,255,0.98) 100%)",
         minHeight,
+        height,
         display: "flex",
         flexDirection: "column",
         boxShadow: "0 20px 50px rgba(16, 24, 40, 0.08)"
@@ -83,7 +94,8 @@ function SurfaceCard({ icon, title, subtitle, children, rightAction, minHeight, 
           position: "relative",
           flex: 1,
           minHeight: 0,
-          overflow: scrollable ? "auto" : "visible"
+          overflow: scrollable ? "auto" : "visible",
+          ...bodySx
         }}
       >
         {children}
