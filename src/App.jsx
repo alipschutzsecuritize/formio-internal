@@ -15,6 +15,36 @@ import {
   extractPanels
 } from "./utils/panelUtils";
 
+const STORAGE_KEY_DELETED_PANELS = "formio.builder.deletedPanels.v1";
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function buildSavedPanelTitle(panel) {
+  const title = escapeHtml(panel.title || panel.label || panel.type);
+  const type = escapeHtml(panel.type || "panel");
+
+  return `
+    <span class="saved-panel-builder-item">
+      <span class="saved-panel-builder-text">
+        <span class="saved-panel-builder-title">${title}</span>
+        <span class="saved-panel-builder-type">${type}</span>
+      </span>
+      <button
+        class="saved-panel-delete"
+        type="button"
+        aria-label="Delete saved panel"
+        data-panel-key="${escapeHtml(panel.key)}"
+      >&times;</button>
+    </span>
+  `;
+}
 
 export default function App() {
   // ============================================
@@ -25,6 +55,8 @@ export default function App() {
   const builderInstanceRef = useRef(null);
   const previewInstanceRef = useRef(null);
   const componentToAddRef = useRef(null);
+  const savedPanelsRef = useRef([]);
+  const deletedPanelKeysRef = useRef([]);
 
   // ============================================
   // STATE
@@ -56,6 +88,21 @@ export default function App() {
     return [];
   });
 
+  const [deletedPanelKeys, setDeletedPanelKeys] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY_DELETED_PANELS);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  savedPanelsRef.current = savedPanels;
+  deletedPanelKeysRef.current = deletedPanelKeys;
+
   // ============================================
   // DERIVED VALUES
   // ============================================
@@ -76,11 +123,10 @@ export default function App() {
 
       // Build pre-defined components from saved panels
       const preDefinedComponents = {};
-      savedPanels.forEach((panel) => {
+      savedPanelsRef.current.forEach((panel) => {
         preDefinedComponents[panel.key] = {
-          title: panel.title || panel.label || panel.type,
+          title: buildSavedPanelTitle(panel),
           key: panel.key,
-          icon: 'bookmark',
           schema: panel.data || {}
         };
       });
@@ -126,13 +172,50 @@ export default function App() {
       builder.on("removeComponent", syncSchema);
       builder.on("updateComponent", syncSchema);
 
+      const handleSavedPanelDelete = (event) => {
+        const deleteButton = event.target.closest(".saved-panel-delete");
+        if (!deleteButton) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const panelKey = deleteButton.dataset.panelKey;
+        if (!panelKey) {
+          return;
+        }
+
+        deleteButton.closest("[ref='sidebar-component'], .formcomponent")?.remove();
+
+        setSavedPanels((currentPanels) => {
+          const nextPanels = currentPanels.filter((panel) => panel.key !== panelKey);
+          localStorage.setItem(STORAGE_KEY_PANELS, JSON.stringify(nextPanels));
+          return nextPanels;
+        });
+
+        setDeletedPanelKeys((currentKeys) => {
+          const nextKeys = Array.from(new Set([...currentKeys, panelKey]));
+          localStorage.setItem(STORAGE_KEY_DELETED_PANELS, JSON.stringify(nextKeys));
+          return nextKeys;
+        });
+      };
+
+      builderMountRef.current.addEventListener("click", handleSavedPanelDelete, true);
+
       syncSchema();
+
+      return () => {
+        builderMountRef.current?.removeEventListener("click", handleSavedPanelDelete, true);
+      };
     }
 
-    mountBuilder();
+    const cleanupPromise = mountBuilder();
 
     return () => {
       active = false;
+      cleanupPromise?.then((cleanup) => cleanup?.());
       if (builderInstanceRef.current && typeof builderInstanceRef.current.destroy === "function") {
         builderInstanceRef.current.destroy(true);
         builderInstanceRef.current = null;
@@ -145,11 +228,13 @@ export default function App() {
     localStorage.setItem(STORAGE_KEY_SCHEMA, JSON.stringify(schema));
 
     // Auto-extract panels from schema as they're created
-    const extractedPanels = extractPanels(schema);
+    const deletedKeys = new Set(deletedPanelKeysRef.current);
+    const extractedPanels = extractPanels(schema).filter((panel) => !deletedKeys.has(panel.key));
     
     if (extractedPanels.length > 0) {
       // Merge with existing panels - UPDATE existing ones if content changed
-      const updatedPanels = savedPanels.map(existingPanel => {
+      const currentPanels = savedPanelsRef.current;
+      const updatedPanels = currentPanels.map(existingPanel => {
         // Find if this panel exists in the extracted ones
         const extractedVersion = extractedPanels.find(ep => ep.key === existingPanel.key);
         if (extractedVersion) {
@@ -170,6 +255,11 @@ export default function App() {
       const newPanels = extractedPanels.filter(ep => !existingKeys.has(ep.key));
 
       const merged = [...updatedPanels, ...newPanels];
+      const hasChanged = JSON.stringify(currentPanels) !== JSON.stringify(merged);
+      if (!hasChanged) {
+        return;
+      }
+
       setSavedPanels(merged);
       localStorage.setItem(STORAGE_KEY_PANELS, JSON.stringify(merged));
     }

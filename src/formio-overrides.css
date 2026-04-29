@@ -316,6 +316,59 @@
   background: linear-gradient(135deg, #e0e8ff 0%, #d9e1ff 100%) !important;
 }
 
+.saved-panel-builder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.saved-panel-builder-text {
+  display: grid;
+  min-width: 0;
+  text-align: left;
+}
+
+.saved-panel-builder-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.saved-panel-builder-type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  opacity: 0.78;
+}
+
+.saved-panel-delete {
+  appearance: none;
+  border: 0;
+  background: rgba(255, 255, 255, 0.24);
+  color: currentColor;
+  cursor: pointer;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0;
+}
+
+.saved-panel-delete:hover,
+.saved-panel-delete:focus-visible {
+  background: rgba(255, 255, 255, 0.38);
+  outline: none;
+}
+
 /* Drag over effect for the form builder area */
 .builder-theme .form-builder-form.drag-over,
 .builder-theme .formbuilder.drag-over {
