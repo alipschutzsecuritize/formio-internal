@@ -72,6 +72,8 @@ component list  | scrollable builder canvas
 
 The component list stays available while the builder canvas scrolls. This behavior is controlled in `src/formio-overrides.css`, not in React.
 
+Drag autoscroll is custom because Form.io's built-in Dragula autoscroll targets `window`, while this app scrolls `.formarea`. `setupBuilderFormAreaAutoScroll()` in `src/App.jsx` scrolls `.formarea` when a dragged component approaches the top or bottom edge.
+
 ## Persistence
 
 Browser `localStorage` keys:

@@ -35,4 +35,5 @@ Primary goal: let users build Form.io forms, preview them live, inspect/copy a c
 - The delete X for saved panels removes the current DOM item and persists the deletion key so auto-extraction does not immediately recreate it.
 - Keep the builder structure as two top-level columns: builder on the left, preview on the right.
 - Inside the builder, `.formcomponents` is the component list and `.formarea` is the scrollable form canvas.
+- Drag autoscroll is handled by `setupBuilderFormAreaAutoScroll()` in `src/App.jsx`; Form.io's native autoscroll only targets `window`.
 - Run `npm run build` after behavior or layout changes.

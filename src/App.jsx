@@ -46,6 +46,95 @@ function buildSavedPanelTitle(panel) {
   `;
 }
 
+function setupBuilderFormAreaAutoScroll(builderRoot) {
+  let pointer = null;
+  let frameId = null;
+
+  const edgeSize = 96;
+  const maxSpeed = 18;
+
+  function getFormArea() {
+    return builderRoot.querySelector(".formarea");
+  }
+
+  function isDragging() {
+    return Boolean(document.querySelector(".gu-mirror"));
+  }
+
+  function stopAutoScroll() {
+    pointer = null;
+    if (frameId) {
+      cancelAnimationFrame(frameId);
+      frameId = null;
+    }
+  }
+
+  function autoScrollFrame() {
+    frameId = null;
+
+    if (!pointer || !isDragging()) {
+      stopAutoScroll();
+      return;
+    }
+
+    const formArea = getFormArea();
+    if (!formArea) {
+      return;
+    }
+
+    const rect = formArea.getBoundingClientRect();
+    const isInsideX = pointer.x >= rect.left && pointer.x <= rect.right;
+
+    if (isInsideX) {
+      const distanceFromTop = pointer.y - rect.top;
+      const distanceFromBottom = rect.bottom - pointer.y;
+
+      if (distanceFromTop < edgeSize) {
+        const intensity = Math.max(0, (edgeSize - distanceFromTop) / edgeSize);
+        formArea.scrollTop -= Math.ceil(intensity * maxSpeed);
+      } else if (distanceFromBottom < edgeSize) {
+        const intensity = Math.max(0, (edgeSize - distanceFromBottom) / edgeSize);
+        formArea.scrollTop += Math.ceil(intensity * maxSpeed);
+      }
+    }
+
+    frameId = requestAnimationFrame(autoScrollFrame);
+  }
+
+  function updatePointer(clientX, clientY) {
+    pointer = { x: clientX, y: clientY };
+    if (isDragging() && !frameId) {
+      frameId = requestAnimationFrame(autoScrollFrame);
+    }
+  }
+
+  function handleMouseMove(event) {
+    updatePointer(event.clientX, event.clientY);
+  }
+
+  function handleTouchMove(event) {
+    const touch = event.touches?.[0];
+    if (touch) {
+      updatePointer(touch.clientX, touch.clientY);
+    }
+  }
+
+  document.addEventListener("mousemove", handleMouseMove);
+  document.addEventListener("touchmove", handleTouchMove, { passive: true });
+  document.addEventListener("mouseup", stopAutoScroll);
+  document.addEventListener("touchend", stopAutoScroll);
+  document.addEventListener("drop", stopAutoScroll);
+
+  return () => {
+    stopAutoScroll();
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("touchmove", handleTouchMove);
+    document.removeEventListener("mouseup", stopAutoScroll);
+    document.removeEventListener("touchend", stopAutoScroll);
+    document.removeEventListener("drop", stopAutoScroll);
+  };
+}
+
 export default function App() {
   // ============================================
   // REFS
@@ -203,11 +292,13 @@ export default function App() {
       };
 
       builderMountRef.current.addEventListener("click", handleSavedPanelDelete, true);
+      const cleanupAutoScroll = setupBuilderFormAreaAutoScroll(builderMountRef.current);
 
       syncSchema();
 
       return () => {
         builderMountRef.current?.removeEventListener("click", handleSavedPanelDelete, true);
+        cleanupAutoScroll();
       };
     }
 
