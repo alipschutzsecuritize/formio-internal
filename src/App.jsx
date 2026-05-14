@@ -433,6 +433,15 @@ export default function App() {
     }
   }
 
+  async function handleCopyData() {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(submissionData, null, 2));
+      setCopyStatus("Entered data JSON copied to clipboard.");
+    } catch {
+      setCopyStatus("Could not copy automatically. Check browser permissions.");
+    }
+  }
+
 
 
   // ============================================
@@ -442,8 +451,8 @@ export default function App() {
     <Box
       sx={{
         minHeight: "100vh",
-        px: { xs: 1.25, md: 2 },
-        py: { xs: 1.25, md: 2 },
+        px: { xs: 1, md: 1.5 },
+        py: { xs: 1, md: 1.5 },
         background:
           "radial-gradient(circle at top left, rgba(80, 102, 255, 0.14), transparent 28%), radial-gradient(circle at right top, rgba(0, 209, 178, 0.16), transparent 30%), linear-gradient(180deg, #f5f8ff 0%, #f3f6fb 52%, #eef4ef 100%)"
       }}
@@ -453,7 +462,7 @@ export default function App() {
           sx={{
             display: "grid",
             gridTemplateColumns: { xs: "1fr", lg: "1fr" },
-            gap: 2,
+            gap: 1.2,
             minHeight: "100vh"
           }}
         >
@@ -461,7 +470,7 @@ export default function App() {
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: 2
+              gap: 1.2
             }}
           >
             <BuilderSection builderMountRef={builderMountRef} previewMountRef={previewMountRef} />
@@ -469,8 +478,8 @@ export default function App() {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", xl: "1fr 1fr" },
-                gap: 2
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                gap: 1.2
               }}
             >
               <SchemaSection 
@@ -481,6 +490,7 @@ export default function App() {
               <DataSection 
                 submissionData={submissionData} 
                 copyStatus={copyStatus}
+                onCopy={handleCopyData}
               />
             </Box>
 

@@ -9,7 +9,6 @@ function SchemaSection({ componentsPayload, copyStatus, onCopy }) {
     <SurfaceCard
       icon={<DataObjectRoundedIcon />}
       title="JSON Components (Schema)"
-      subtitle="Sanitized output without display, settings, or noisy empty values."
       rightAction={
         <Button
           variant="contained"
@@ -17,28 +16,29 @@ function SchemaSection({ componentsPayload, copyStatus, onCopy }) {
           onClick={onCopy}
           sx={{
             borderRadius: 999,
-            px: 2,
-            py: 1.1,
-            fontWeight: 700,
+            px: 1.2,
+            py: 0.6,
+            fontWeight: 600,
+            fontSize: "0.8rem",
             boxShadow: "0 14px 28px rgba(81, 131, 255, 0.22)"
           }}
         >
-          Copy components JSON
+          Copy JSON
         </Button>
       }
     >
       <Paper
         elevation={0}
         sx={{
-          p: 2,
-          borderRadius: 4,
+          p: 1.2,
+          borderRadius: 3,
           border: "1px solid",
           borderColor: alpha("#7086b6", 0.18),
           background:
             "linear-gradient(180deg, rgba(14, 21, 38, 0.98) 0%, rgba(18, 30, 53, 0.98) 100%)",
           color: "common.white",
-          minHeight: 360,
-          maxHeight: 560,
+          minHeight: 280,
+          maxHeight: 420,
           overflow: "auto"
         }}
       >

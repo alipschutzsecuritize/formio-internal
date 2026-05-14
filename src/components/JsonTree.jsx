@@ -14,7 +14,7 @@ function JsonTree({ value, nodeKey = "" }) {
     }
 
     return (
-      <Box sx={{ fontFamily: '"IBM Plex Mono", "SFMono-Regular", monospace', fontSize: 13, lineHeight: 1.55 }}>
+      <Box sx={{ fontFamily: '"IBM Plex Mono", "SFMono-Regular", monospace', fontSize: 12, lineHeight: 1.4 }}>
         {nodeKey ? (
           <Box component="span" sx={{ color: nodeKey.startsWith("[") ? "text.secondary" : "json.key", fontWeight: 600 }}>
             {nodeKey.startsWith("[") ? nodeKey : `"${nodeKey}"`}
@@ -40,11 +40,11 @@ function JsonTree({ value, nodeKey = "" }) {
         sx={{
           cursor: "pointer",
           fontFamily: '"IBM Plex Mono", "SFMono-Regular", monospace',
-          fontSize: 13,
-          lineHeight: 1.55,
+          fontSize: 12,
+          lineHeight: 1.4,
           borderRadius: 2,
-          px: 0.75,
-          py: 0.25,
+          px: 0.6,
+          py: 0.2,
           transition: "background-color 140ms ease",
           "&:hover": { backgroundColor: "rgba(90, 128, 255, 0.08)" }
         }}
@@ -66,12 +66,12 @@ function JsonTree({ value, nodeKey = "" }) {
 
       <Box
         sx={{
-          ml: 2.25,
-          pl: 1.5,
+          ml: 1.8,
+          pl: 1,
           borderLeft: "1px dashed",
           borderColor: "divider",
           display: "grid",
-          gap: 0.25
+          gap: 0.2
         }}
       >
         {entries.map(([entryKey, entryValue]) => (

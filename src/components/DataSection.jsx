@@ -1,25 +1,42 @@
-import { Box, Paper, Typography, alpha } from "@mui/material";
+import { Box, Paper, Typography, alpha, Button } from "@mui/material";
 import DataObjectRoundedIcon from "@mui/icons-material/DataObjectRounded";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import SurfaceCard from "./SurfaceCard";
 
-function DataSection({ submissionData, copyStatus }) {
+function DataSection({ submissionData, copyStatus, onCopy }) {
   return (
     <SurfaceCard
       icon={<DataObjectRoundedIcon />}
       title="Entered data"
-      subtitle="Live submission payload captured from the preview form."
+      rightAction={
+        <Button
+          variant="contained"
+          startIcon={<ContentCopyRoundedIcon />}
+          onClick={onCopy}
+          sx={{
+            borderRadius: 999,
+            px: 1.2,
+            py: 0.6,
+            fontWeight: 600,
+            fontSize: "0.8rem",
+            boxShadow: "0 14px 28px rgba(81, 131, 255, 0.22)"
+          }}
+        >
+          Copy JSON
+        </Button>
+      }
     >
       <Paper
         elevation={0}
         sx={{
-          p: 2,
-          borderRadius: 4,
+          p: 1.2,
+          borderRadius: 3,
           border: "1px solid",
           borderColor: alpha("#7086b6", 0.18),
           background:
             "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(245,248,255,1) 100%)",
-          minHeight: 360,
-          maxHeight: 560,
+          minHeight: 280,
+          maxHeight: 420,
           overflow: "auto"
         }}
       >
@@ -29,8 +46,8 @@ function DataSection({ submissionData, copyStatus }) {
             m: 0,
             color: "text.primary",
             fontFamily: '"IBM Plex Mono", "SFMono-Regular", monospace',
-            fontSize: 13,
-            lineHeight: 1.55,
+            fontSize: 12,
+            lineHeight: 1.4,
             whiteSpace: "pre-wrap",
             wordBreak: "break-word"
           }}
@@ -39,7 +56,7 @@ function DataSection({ submissionData, copyStatus }) {
         </Box>
       </Paper>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
+      <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
         {copyStatus || "Copy status will appear here after exporting the schema."}
       </Typography>
     </SurfaceCard>

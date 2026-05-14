@@ -8,14 +8,13 @@ function BuilderSection({ builderMountRef, previewMountRef }) {
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: { xs: "1fr", xl: "1fr 1fr" },
-        gap: 2
+        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        gap: 1.2
       }}
     >
       <SurfaceCard
         icon={<DashboardCustomizeRoundedIcon />}
         title="Build the form"
-        subtitle="Drag components, configure fields, and keep iterating."
         minHeight={{ xs: 520, xl: "calc(100vh - 240px)" }}
         height={{ xs: 520, xl: "calc(100vh - 240px)" }}
         scrollable
@@ -27,7 +26,6 @@ function BuilderSection({ builderMountRef, previewMountRef }) {
       <SurfaceCard
         icon={<PlayCircleOutlineRoundedIcon />}
         title="Final result"
-        subtitle="The running form updates every time the schema changes."
         minHeight={{ xs: 520, xl: "calc(100vh - 240px)" }}
         height={{ xs: 520, xl: "calc(100vh - 240px)" }}
         scrollable

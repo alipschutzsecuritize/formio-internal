@@ -43,11 +43,11 @@ function SurfaceCard({
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          gap: 1.5,
+          gap: 0.8,
           alignItems: { xs: "flex-start", sm: "center" },
           justifyContent: "space-between",
-          px: 2.5,
-          py: 2,
+          px: 1.5,
+          py: 0.8,
           position: "relative"
         }}
       >
@@ -55,15 +55,15 @@ function SurfaceCard({
           sx={{
             display: "flex",
             flexDirection: "row",
-            gap: 1.25,
+            gap: 0.8,
             alignItems: "center"
           }}
         >
           <Box
             sx={{
-              width: 44,
-              height: 44,
-              borderRadius: 3,
+              width: 36,
+              height: 36,
+              borderRadius: 2,
               display: "grid",
               placeItems: "center",
               color: "primary.main",
@@ -74,10 +74,10 @@ function SurfaceCard({
             {icon}
           </Box>
           <Box>
-            <Typography variant="h5" sx={{ letterSpacing: "-0.03em" }}>
+            <Typography variant="h6" sx={{ letterSpacing: "-0.03em" }}>
               {title}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="caption" color="text.secondary">
               {subtitle}
             </Typography>
           </Box>
@@ -90,7 +90,7 @@ function SurfaceCard({
       <Box
         className={scrollable ? "scroll-panel" : undefined}
         sx={{
-          p: 2,
+          p: 1.2,
           position: "relative",
           flex: 1,
           minHeight: 0,
