@@ -1,4 +1,15 @@
-import { Box, Divider, Paper, Typography, alpha } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Divider,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
+  alpha
+} from "@mui/material";
+import OpenInFullRoundedIcon from "@mui/icons-material/OpenInFullRounded";
+import CloseFullscreenRoundedIcon from "@mui/icons-material/CloseFullscreenRounded";
 
 function SurfaceCard({
   icon,
@@ -11,19 +22,39 @@ function SurfaceCard({
   scrollable = false,
   bodySx
 }) {
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  useEffect(() => {
+    if (!isMaximized) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMaximized]);
+
+  const resolvedMinHeight = isMaximized ? "auto" : minHeight;
+  const resolvedHeight = isMaximized ? "calc(100vh - 16px)" : height;
+
   return (
     <Paper
       elevation={0}
       sx={{
-        position: "relative",
+        position: isMaximized ? "fixed" : "relative",
+        inset: isMaximized ? 8 : "auto",
+        zIndex: isMaximized ? 1500 : "auto",
         overflow: "hidden",
         borderRadius: 6,
         border: "1px solid",
         borderColor: alpha("#7d8db3", 0.18),
         background:
           "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(247,250,255,0.98) 100%)",
-        minHeight,
-        height,
+        minHeight: resolvedMinHeight,
+        height: resolvedHeight,
         display: "flex",
         flexDirection: "column",
         boxShadow: "0 20px 50px rgba(16, 24, 40, 0.08)"
@@ -82,7 +113,26 @@ function SurfaceCard({
             </Typography>
           </Box>
         </Box>
-        {rightAction}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
+          {rightAction}
+          <Tooltip title={isMaximized ? "Restore size" : "Maximize card"}>
+            <IconButton
+              size="small"
+              onClick={() => setIsMaximized((current) => !current)}
+              sx={{
+                border: "1px solid",
+                borderColor: alpha("#7d8db3", 0.28),
+                backgroundColor: alpha("#ffffff", 0.84)
+              }}
+            >
+              {isMaximized ? (
+                <CloseFullscreenRoundedIcon fontSize="small" />
+              ) : (
+                <OpenInFullRoundedIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
       <Divider />

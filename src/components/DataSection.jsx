@@ -57,7 +57,7 @@ function DataSection({ submissionData, copyStatus, onCopy }) {
       </Paper>
 
       <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-        {copyStatus || "Copy status will appear here after exporting the schema."}
+        {copyStatus || ""}
       </Typography>
     </SurfaceCard>
   );
